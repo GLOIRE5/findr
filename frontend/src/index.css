@@ -3,6 +3,9 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
+/* Light only: dark: styles apply only inside a .dark parent, never from the OS setting */
+@custom-variant dark (&:is(.dark *));
+
 /* ALU palette: navy + white */
 :root {
   --navy: #0b1f3a;
