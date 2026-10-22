@@ -70,8 +70,8 @@
 }
 
 .hero-search-input:focus {
-  border-color: #8b1e2d;
-  box-shadow: 0 0 0 4px rgba(139, 30, 45, 0.35), 0 8px 30px rgba(0, 0, 0, 0.16);
+  border-color: #0b1f3a;
+  box-shadow: 0 0 0 4px rgba(11, 31, 58, 0.35), 0 8px 30px rgba(0, 0, 0, 0.16);
 }
 
 /* Filters */
@@ -107,8 +107,8 @@
 }
 
 .filter-select:focus {
-  border-color: #8b1e2d;
-  box-shadow: 0 0 0 3px rgba(139, 30, 45, 0.25);
+  border-color: #0b1f3a;
+  box-shadow: 0 0 0 3px rgba(11, 31, 58, 0.25);
 }
 
 /* Items Main Page */
@@ -174,7 +174,7 @@
 
 /* Lost badge text */
 .item-card.lost .badge {
-  color: #8b1e2d;
+  color: #0b1f3a;
 }
 
 /* Found badge text */
