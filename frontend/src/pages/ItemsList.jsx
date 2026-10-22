@@ -55,7 +55,7 @@ export default function ItemsList() {
         </div>
       </section>
 
-      <main className="items-page items-main">
+      <main id="items" className="items-page items-main scroll-mt-16">
         {items.length === 0 ? (
           <p className="no-items">No items match your search.</p>
         ) : (
