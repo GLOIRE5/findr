@@ -1,7 +1,7 @@
 {
   "name": "findr",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple lost and found app for the ALU campus.",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -16,7 +16,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/GLOIRE5/findr/issues"
   },
