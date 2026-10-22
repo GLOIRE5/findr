@@ -1,7 +1,7 @@
 {
   "name": "findr",
   "version": "1.0.0",
-  "description": "Findr - see README for project details",
+  "description": "A simple lost and found app for the ALU campus.",
   "main": "index.js",
   "directories": {
     "test": "tests"

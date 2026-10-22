@@ -1,84 +1,83 @@
-﻿# 📍 Findr
+﻿# Findr
 
-> **Campus lost & found that doesn''t get buried in the group chat.**
+> **A simple lost and found app for the ALU campus.**
 
 [![Node.js CI](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml/badge.svg)](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 ---
 
-## 🧩 Problem Statement
+## Problem Statement
 
-At ALU, lost and found runs through scattered WhatsApp groups. A *"found: black phone near the library"* post gets buried under hundreds of messages within hours. Nobody can search old posts, and nobody knows whether an item was ever returned.
+At ALU, students post lost and found items in WhatsApp groups. These posts get lost under hundreds of new messages in a few hours. You cannot search old posts, and nobody knows if an item was returned.
 
-Losing things costs students a lot. A lost phone often means a lost MoMo wallet and SIM. A lost national ID, student card, or laptop charger can take weeks and real money to replace. Honest finders also have no easy way to return items safely, so many valuables never make it back to their owners.
+Losing an item is expensive for students. A lost phone can mean a lost MoMo wallet and SIM card. A lost ID, student card, or laptop charger can take weeks and money to replace. People who find items also have no safe way to return them.
 
-**Findr** gives the campus one searchable place to report lost and found items. Its verification step ensures items go back to their real owners. Built mobile-first and lightweight for students on limited data.
-
----
-
-## 👥 Target Users
-
-| User Type | Description |
-|-----------|-------------|
-| **Students / Staff (lost something)** | Need a fast way to check whether anyone found their item |
-| **Finders** | Picked up something and want a safe, easy way to return it |
-| **Campus Security / Admin** | Hold handed-in items and want an organised record |
+**Findr** gives the campus one place to post and search lost and found items. Owners must answer a question about the item before they can claim it, so items go back to the right person. The app works well on phones and uses little data.
 
 ---
 
-## ✨ Core Features
+## Target Users
 
-1. **📝 Report an Item** — Post a lost or found item with category (phone, ID, laptop, keys…), campus location, date, and description
-2. **🔍 Search & Filter** — Browse listings by category, location, date, and status — no more scrolling through group chats
-3. **✅ Verified Claims** — Finder sets a private verification question (e.g. *"What''s your lock screen image?"*); contact details shared only after a correct answer
-4. **✔️ Mark as Returned** — Close a listing once the item is returned, keeping the board accurate
-5. **🔔 Alerts** — SMS/WhatsApp notifications when a found item matches your lost report (using numbers students already use)
+| User | What they need |
+|------|----------------|
+| **Students and staff who lost something** | A quick way to check if someone found their item |
+| **Finders** | A safe and easy way to return an item |
+| **Campus security and admin** | A clear record of items handed in to them |
 
 ---
 
-## 🛠️ Technology Stack
+## Core Features
 
-| Layer | Technology |
-|-------|-----------|
+1. **Report an item:** Post a lost or found item with its category (phone, ID, laptop, keys), location on campus, date, and description.
+2. **Search and filter:** Find items by category, location, date, or status.
+3. **Verified claims:** The finder sets a private question (for example, *"What is your lock screen picture?"*). Contact details are shared only after the right answer.
+4. **Mark as returned:** Close a post once the item is back with its owner.
+5. **Alerts:** Get an SMS or WhatsApp message when a found item matches your lost item.
+
+---
+
+## Technology Stack
+
+| Part | Technology |
+|------|------------|
 | Frontend | React 18 |
-| Backend | Node.js + Express |
-| Database | SQLite (dev) / PostgreSQL (prod) |
-| Testing | Jest + Supertest |
+| Backend | Node.js and Express |
+| Database | SQLite (development), PostgreSQL (production) |
+| Testing | Jest and Supertest |
 | CI/CD | GitHub Actions |
-| Containerisation | Docker (Formative 2) |
-| Cloud Deploy | (Formative 3) |
+| Containers | Docker (Formative 2) |
+| Cloud deployment | (Formative 3) |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### Prerequisites
+### What you need
 
-- [Node.js](https://nodejs.org/) v18 or higher
-- npm v9 or higher
+- [Node.js](https://nodejs.org/) version 18 or higher
+- npm version 9 or higher
 
-### Installation
+### Install and run
 
 ```bash
-# 1. Clone the repository
+# 1. Download the code
 git clone https://github.com/GLOIRE5/findr.git
 cd findr
 
-# 2. Install dependencies
+# 2. Install packages
 npm install
 
-# 3. Copy environment variables
+# 3. Create your environment file
 cp .env.example .env
-# Edit .env with your values if needed
 
-# 4. Start the development server
+# 4. Start the server
 npm run dev
 ```
 
-The API will be available at `http://localhost:3000`.
+The API runs at `http://localhost:3000`.
 
-### Running Tests
+### Run the tests
 
 ```bash
 npm test
@@ -86,29 +85,29 @@ npm test
 
 ### API Endpoints (v1)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/items` | List all items (supports `?status=lost&category=phone`) |
-| `POST` | `/api/items` | Report a new lost or found item |
-| `GET` | `/api/items/:id` | Get a single item by ID |
-| `POST` | `/api/items/:id/claim` | Submit a claim with verification answer |
+| Method | Endpoint | What it does |
+|--------|----------|--------------|
+| `GET` | `/api/items` | List all items (filter with `?status=lost&category=phone`) |
+| `POST` | `/api/items` | Report a lost or found item |
+| `GET` | `/api/items/:id` | Get one item |
+| `POST` | `/api/items/:id/claim` | Claim an item by answering its question |
 | `PATCH` | `/api/items/:id/returned` | Mark an item as returned |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 findr/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml          # GitHub Actions CI pipeline
+│       └── ci.yml          # CI pipeline (GitHub Actions)
 ├── src/
-│   ├── routes/             # Express route handlers
+│   ├── routes/             # API routes
 │   ├── models/             # Data models
-│   └── app.js              # Express app entry point
-├── tests/                  # Jest test files
-├── .env.example            # Environment variable template
+│   └── app.js              # Main app file
+├── tests/                  # Tests
+├── .env.example            # Example environment variables
 ├── .gitignore
 ├── package.json
 ├── LICENSE
@@ -117,23 +116,17 @@ findr/
 
 ---
 
-## 🤝 Contributing
+## How to Contribute
 
-1. Create a feature branch from `main`: `git checkout -b feature/your-feature`
-2. Make your changes and commit them with clear messages
-3. Open a Pull Request — at least 1 team member must review and approve
-4. All CI checks must pass before merging
+1. Create a new branch from `main`: `git checkout -b feature/your-feature`
+2. Make your changes and commit them with clear messages.
+3. Open a Pull Request. At least 1 team member must review and approve it.
+4. All CI checks must pass before you merge.
 
 See our [GitHub Projects board](https://github.com/GLOIRE5/findr/projects) for open tasks.
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
-
----
-
-## 👨‍💻 Team
-
-Built by students at the African Leadership University (ALU) as part of the DevOps 2025 course.
+This project uses the MIT License. See the [LICENSE](./LICENSE) file.
