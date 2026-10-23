@@ -1,118 +1,108 @@
 ﻿# Findr
 
-> **A simple lost and found app for the ALU campus.**
+> A simple lost and found app for the ALU campus.
 
 [![Node.js CI](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml/badge.svg)](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
----
+## African Context
 
-## Problem Statement
+On many African campuses, ALU included, lost and found happens in WhatsApp groups. Posts get buried under hundreds of new messages within hours, old posts can't be searched, and nobody knows if an item was ever returned.
 
-At ALU, students post lost and found items in WhatsApp groups. These posts get lost under hundreds of new messages in a few hours. You cannot search old posts, and nobody knows if an item was returned.
+Losing an item is expensive for students. A lost phone often means a lost mobile money (MoMo) wallet and SIM card. A lost ID, student card, or laptop charger can take weeks and money to replace. People who find items also have no safe way to return them.
 
-Losing an item is expensive for students. A lost phone can mean a lost MoMo wallet and SIM card. A lost ID, student card, or laptop charger can take weeks and money to replace. People who find items also have no safe way to return them.
+Findr gives the campus one place to post and search lost and found items. Owners answer a question about the item before they can claim it, so items go back to the right person. It is built for phones, uses little data, and works with the tools students already use: finders can share a post straight to WhatsApp.
 
-**Findr** gives the campus one place to post and search lost and found items. Owners must answer a question about the item before they can claim it, so items go back to the right person. The app works well on phones and uses little data.
+## Team Members
 
----
+- Bonae - Backend developer
+- Gloire - Backend developer
+- Norette - Frontend developer
+- Shina - Frontend developer
 
-## Target Users
+## Project Overview
 
-| User | What they need |
-|------|----------------|
-| **Students and staff who lost something** | A quick way to check if someone found their item |
-| **Finders** | A safe and easy way to return an item |
-| **Campus security and admin** | A clear record of items handed in to them |
+Findr is a web app where anyone on campus can report something they lost or found. Each post has a category, where and when it happened, and a way to reach the person who posted it. Everyone else can browse the board, search by name or place, and filter by status and category.
 
----
+When someone posts a found item, they set a secret question that only the real owner could answer, such as "What's the lock screen photo?". The finder's contact is only shown to someone who answers it correctly. Once the item is back with its owner, the post is marked as returned.
 
-## Core Features
+The app has two parts: a Node.js and Express API that stores items and checks claims, and a React website that talks to it.
 
-1. **Report an item:** Post a lost or found item with its category (phone, ID, laptop, keys), location on campus, date, and description.
-2. **Search and filter:** Find items by category, location, date, or status.
-3. **Verified claims:** The finder sets a private question (for example, *"What is your lock screen picture?"*). Contact details are shared only after the right answer.
-4. **Mark as returned:** Close a post once the item is back with its owner.
-5. **Alerts:** Get an SMS or WhatsApp message when a found item matches your lost item.
+### Target Users
 
----
+- **Students and staff who lost something:** a quick way to check if someone found their item.
+- **Finders:** a safe and easy way to return an item without sharing their number publicly.
+- **Campus security and admin:** a clear record of items handed in to them.
+
+### Core Features
+
+- **Report an item:** post a lost or found item with its category, campus location, date, and contact (WhatsApp or email). Share the post to WhatsApp in one tap.
+- **Search and filter:** find items by name or location, and filter by status and category.
+- **Verified claims:** the finder sets a secret question, and their contact is shared only after the right answer.
+- **Mark as returned:** close a post once the item is back with its owner.
+- **Alerts (planned):** get an SMS or WhatsApp message when a found item matches your lost item.
 
 ## Technology Stack
 
-| Part | Technology |
-|------|------------|
-| Frontend | React 19, Vite, Tailwind CSS |
-| Backend | Node.js and Express |
-| Database | In-memory for now, PostgreSQL later |
-| Testing | Jest and Supertest (backend), ESLint (frontend) |
-| CI/CD | GitHub Actions |
-| Containers | Docker (Formative 2) |
-| Cloud deployment | (Formative 3) |
-
----
+- **Backend**: Node.js 22 and Express 5
+- **Frontend**: React 19, Vite, React Router, Tailwind CSS, shadcn/ui
+- **Database**: In-memory for now, PostgreSQL later
+- **Other**: Jest and Supertest (backend tests), ESLint (frontend), GitHub Actions (CI), Docker (Formative 2)
 
 ## Getting Started
 
-### What you need
+### Prerequisites
 
-- [Node.js](https://nodejs.org/) version 22.9 or higher
-- npm version 10 or higher
+- [Node.js](https://nodejs.org/) 22.9 or higher
+- npm 10 or higher
+- Git
 
-Findr has two parts: the **backend** (the API) and the **frontend** (the website). Run each one in its own terminal.
+### Installation
 
-### 1. Download the code
-
+1. Clone the repository
 ```bash
-git clone https://github.com/GLOIRE5/findr.git
-cd findr
+   git clone https://github.com/GLOIRE5/findr.git
+   cd findr
 ```
 
-### 2. Run the backend
-
+2. Install and start the backend (API)
 ```bash
-cd backend
-npm install
-cp .env.example .env    # PORT and CORS_ORIGIN
-npm run dev
+   cd backend
+   npm install
+   cp .env.example .env    # optional, only if you want to change the port
+   npm run dev
+```
+   The API runs at `http://localhost:3000`. Open `http://localhost:3000/api/health` to check it works.
+
+3. Run the application: in a second terminal, install and start the frontend
+```bash
+   cd frontend
+   npm install
+   npm run dev
+```
+   The website runs at `http://localhost:5173`.
+
+To run the checks that CI runs on every pull request:
+```bash
+   cd backend && npm test
+   cd ../frontend && npm run lint && npm run build
 ```
 
-The API runs at `http://localhost:3000`. Open `http://localhost:3000/api/health` to check it works.
+### Usage
 
-### 3. Run the frontend
+1. Open `http://localhost:5173` to see the board of lost and found items. Search by name or place, or filter by status and category.
+2. Click **Report item**, choose **I lost something** or **I found something**, and fill in the form. Finders pick or write a secret question for the owner.
+3. After posting, share the item to WhatsApp or copy its link.
 
-In a second terminal:
-
-```bash
-cd frontend
-npm install
-cp .env.example .env    # VITE_API_URL (the backend address)
-npm run dev
-```
-
-The website runs at `http://localhost:5173`.
-
-### Run the tests
-
-```bash
-cd backend
-npm test
-```
-
-For the frontend, run `npm run lint` and `npm run build` inside `frontend/`.
-
-CI runs all of these on every pull request.
-
-### API Endpoints (v1)
+The frontend uses these API endpoints:
 
 | Method | Endpoint | What it does |
 |--------|----------|--------------|
-| `GET` | `/api/items` | List all items (filter with `?status=lost&category=phone`) |
+| `GET` | `/api/items` | List items (filter with `?status=lost&category=electronics&location=Library`) |
 | `POST` | `/api/items` | Report a lost or found item |
 | `GET` | `/api/items/:id` | Get one item |
 | `POST` | `/api/items/:id/claim` | Claim an item by answering its question |
 | `PATCH` | `/api/items/:id/returned` | Mark an item as returned |
-
----
 
 ## Project Structure
 
@@ -121,45 +111,33 @@ findr/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml              # CI: backend tests, frontend lint and build
-├── backend/                    # API service (Node.js + Express)
+├── backend/                    # API (Node.js + Express)
 │   ├── src/
-│   │   ├── controllers/        # One file per feature
-│   │   ├── data/               # Sample items
+│   │   ├── controllers/        # Report, search and claim logic
+│   │   ├── data/               # Seed items
 │   │   ├── routes/             # API routes
-│   │   ├── store/              # Data storage (in-memory for now)
-│   │   ├── utils/              # Helpers (e.g. hide private fields)
+│   │   ├── store/              # Item storage (in-memory for now)
+│   │   ├── utils/              # Helpers, e.g. hiding private fields
 │   │   ├── app.js              # Builds the Express app
 │   │   └── index.js            # Starts the server
 │   ├── tests/                  # Jest + Supertest tests
-│   ├── .env.example            # Example environment variables
-│   └── package.json
+│   └── .env.example            # Example environment variables
 ├── frontend/                   # Website (React + Vite)
-│   ├── src/
-│   │   ├── components/         # Reusable UI parts
-│   │   ├── data/               # Sample data and form options
-│   │   ├── lib/                # API calls and helpers
-│   │   └── pages/              # Items list, report form
-│   └── package.json
-├── .gitignore
+│   └── src/
+│       ├── components/         # Header, chips, success screen
+│       │   └── ui/             # shadcn/ui components
+│       ├── data/               # Sample items and form options
+│       ├── lib/                # API calls and helpers
+│       └── pages/              # Items list, report form
 ├── LICENSE
 └── README.md
 ```
 
-The backend and frontend are separate services, each with its own `package.json`. Later, each one gets its own Docker container.
+## Links
 
----
-
-## How to Contribute
-
-1. Create a new branch from `main`: `git checkout -b feature/your-feature`
-2. Make your changes and commit them with clear messages.
-3. Open a Pull Request. At least 1 team member must review and approve it.
-4. All CI checks must pass before you merge.
-
-See our [GitHub Projects board](https://github.com/GLOIRE5/findr/projects) for open tasks.
-
----
+- [Project Board](https://github.com/GLOIRE5/findr/projects)
+- [CI runs](https://github.com/GLOIRE5/findr/actions)
 
 ## License
 
-This project uses the MIT License. See the [LICENSE](./LICENSE) file.
+MIT License. See the [LICENSE](./LICENSE) file.
