@@ -137,6 +137,7 @@ findr/
 
 - [Project Board](https://github.com/GLOIRE5/findr/projects)
 - [CI runs](https://github.com/GLOIRE5/findr/actions)
+- [Branch protection rules](./docs/branch-protection.md)
 
 ## License
 
