@@ -7,7 +7,7 @@
 //   location  partial match, e.g. "room" finds "Maputo Room"
 //   date      exact day, YYYY-MM-DD
 //   returned  true | false
-//   q         words to look for in the title and description
+//   q         words to look for in the title, location and description
 
 import * as store from "../store/itemStore.js";
 import { publicItem } from "../utils/publicItem.js";
@@ -45,7 +45,7 @@ export function listItems(req, res) {
     if (date && item.date !== date) return false;
     if (returned && String(item.returned) !== returned) return false;
     if (q) {
-      const text = `${item.title} ${item.description || ""}`.toLowerCase();
+      const text = `${item.title} ${item.location} ${item.description || ""}`.toLowerCase();
       if (!text.includes(q)) return false;
     }
     return true;
