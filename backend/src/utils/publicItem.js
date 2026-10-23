@@ -2,6 +2,6 @@
 // The answer must never leave the server, and the contact is only
 // shared after a correct claim.
 export function publicItem(item) {
-  const { answer, contact, ...rest } = item;
+  const { answer, contact, claimAttempts, ...rest } = item;
   return { ...rest, hasQuestion: Boolean(item.question) };
 }
