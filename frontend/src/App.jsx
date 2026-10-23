@@ -3,12 +3,11 @@ import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation } fr
 import Header from "./components/Header";
 import ItemsList from "./pages/ItemsList";
 import ReportItem from "./pages/ReportItem";
-import "./App.css";
 
 function Layout() {
   const { hash, key } = useLocation();
 
-  // New page starts at the top; #section links (e.g. Browse -> /#items) scroll to it
+  // New page starts at the top
   useEffect(() => {
     const target = hash && document.getElementById(hash.slice(1));
     if (target) target.scrollIntoView();
