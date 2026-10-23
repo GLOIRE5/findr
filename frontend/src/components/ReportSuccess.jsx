@@ -43,6 +43,9 @@ export default function ReportSuccess({ item, onReset }) {
         <Link to="/" className="text-muted-foreground hover:text-foreground">
           Back to items
         </Link>
+        <Link to={`/items/${item.id}`} className="text-muted-foreground hover:text-foreground">
+          View your post
+        </Link>
         <button type="button" onClick={onReset} className="text-muted-foreground hover:text-foreground">
           Report another
         </button>
