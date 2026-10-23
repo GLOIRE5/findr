@@ -72,7 +72,7 @@ cd findr
 ```bash
 cd backend
 npm install
-cp .env.example .env    # optional, only if you want to change the port
+cp .env.example .env    # PORT and CORS_ORIGIN
 npm run dev
 ```
 
@@ -85,6 +85,7 @@ In a second terminal:
 ```bash
 cd frontend
 npm install
+cp .env.example .env    # VITE_API_URL (the backend address)
 npm run dev
 ```
 
