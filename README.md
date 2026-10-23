@@ -41,10 +41,10 @@ Losing an item is expensive for students. A lost phone can mean a lost MoMo wall
 
 | Part | Technology |
 |------|------------|
-| Frontend | React 18 |
+| Frontend | React 19, Vite, Tailwind CSS |
 | Backend | Node.js and Express |
-| Database | SQLite (development), PostgreSQL (production) |
-| Testing | Jest and Supertest |
+| Database | In-memory for now, PostgreSQL later |
+| Testing | Jest and Supertest (backend), ESLint (frontend) |
 | CI/CD | GitHub Actions |
 | Containers | Docker (Formative 2) |
 | Cloud deployment | (Formative 3) |
@@ -55,33 +55,51 @@ Losing an item is expensive for students. A lost phone can mean a lost MoMo wall
 
 ### What you need
 
-- [Node.js](https://nodejs.org/) version 18 or higher
-- npm version 9 or higher
+- [Node.js](https://nodejs.org/) version 22.9 or higher
+- npm version 10 or higher
 
-### Install and run
+Findr has two parts: the **backend** (the API) and the **frontend** (the website). Run each one in its own terminal.
+
+### 1. Download the code
 
 ```bash
-# 1. Download the code
 git clone https://github.com/GLOIRE5/findr.git
 cd findr
+```
 
-# 2. Install packages
+### 2. Run the backend
+
+```bash
+cd backend
 npm install
-
-# 3. Create your environment file
-cp .env.example .env
-
-# 4. Start the server
+cp .env.example .env    # optional, only if you want to change the port
 npm run dev
 ```
 
-The API runs at `http://localhost:3000`.
+The API runs at `http://localhost:3000`. Open `http://localhost:3000/api/health` to check it works.
+
+### 3. Run the frontend
+
+In a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The website runs at `http://localhost:5173`.
 
 ### Run the tests
 
 ```bash
+cd backend
 npm test
 ```
+
+For the frontend, run `npm run lint` and `npm run build` inside `frontend/`.
+
+CI runs all of these on every pull request.
 
 ### API Endpoints (v1)
 
@@ -101,18 +119,32 @@ npm test
 findr/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml          # CI pipeline (GitHub Actions)
-├── src/
-│   ├── routes/             # API routes
-│   ├── models/             # Data models
-│   └── app.js              # Main app file
-├── tests/                  # Tests
-├── .env.example            # Example environment variables
+│       └── ci.yml              # CI: backend tests, frontend lint and build
+├── backend/                    # API service (Node.js + Express)
+│   ├── src/
+│   │   ├── controllers/        # One file per feature
+│   │   ├── data/               # Sample items
+│   │   ├── routes/             # API routes
+│   │   ├── store/              # Data storage (in-memory for now)
+│   │   ├── utils/              # Helpers (e.g. hide private fields)
+│   │   ├── app.js              # Builds the Express app
+│   │   └── index.js            # Starts the server
+│   ├── tests/                  # Jest + Supertest tests
+│   ├── .env.example            # Example environment variables
+│   └── package.json
+├── frontend/                   # Website (React + Vite)
+│   ├── src/
+│   │   ├── components/         # Reusable UI parts
+│   │   ├── data/               # Sample data and form options
+│   │   ├── lib/                # API calls and helpers
+│   │   └── pages/              # Items list, report form
+│   └── package.json
 ├── .gitignore
-├── package.json
 ├── LICENSE
 └── README.md
 ```
+
+The backend and frontend are separate services, each with its own `package.json`. Later, each one gets its own Docker container.
 
 ---
 
