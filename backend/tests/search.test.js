@@ -73,6 +73,11 @@ describe("GET /api/items", () => {
     expect(ids(res)).toEqual([4]);
   });
 
+  it("searches the location with q, so one search box covers title and location", async () => {
+    const res = await request(app).get("/api/items?q=cafeteria");
+    expect(ids(res)).toEqual([6]);
+  });
+
   it("combines several filters", async () => {
     const res = await request(app).get("/api/items?status=found&category=electronics");
     expect(ids(res)).toEqual([5]);

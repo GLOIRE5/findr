@@ -90,6 +90,8 @@ export default function ReportItem() {
   const [customSpot, setCustomSpot] = useState(false);
   const [customDate, setCustomDate] = useState(false);
   const [created, setCreated] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const mode = modes[form.status];
   const contact = contactMethods[form.contactMethod];
@@ -108,8 +110,16 @@ export default function ReportItem() {
     const item = { status, category, title: title.trim(), location: location.trim(), date, contact: form.contact.trim() };
     if (status === "found") Object.assign(item, { question: question.trim(), answer: answer.trim() });
 
-    setCreated(await createItem(item));
-    window.scrollTo(0, 0);
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      setCreated(await createItem(item));
+      window.scrollTo(0, 0);
+    } catch (err) {
+      setSubmitError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const reset = () => {
@@ -323,8 +333,14 @@ export default function ReportItem() {
               </p>
             </Field>
 
-            <Button type="submit" size="lg" className="h-11 w-full text-base">
-              {mode.cta}
+            {submitError && (
+              <p role="alert" className="text-center text-sm text-destructive">
+                {submitError}
+              </p>
+            )}
+
+            <Button type="submit" size="lg" className="h-11 w-full text-base" disabled={submitting}>
+              {submitting ? "Posting..." : mode.cta}
             </Button>
           </form>
         )}
