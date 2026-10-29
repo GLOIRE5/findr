@@ -46,8 +46,8 @@ The app has two parts: a Node.js and Express API that stores items and checks cl
 
 - **Backend**: Node.js 22 and Express 5
 - **Frontend**: React 19, Vite, React Router, Tailwind CSS, shadcn/ui
-- **Database**: In-memory for now, PostgreSQL later
-- **Other**: Jest and Supertest (backend tests), ESLint (frontend), GitHub Actions (CI), Docker (Formative 2)
+- **Database**: MongoDB (the tests use an in-memory store)
+- **Other**: Jest and Supertest (backend tests), ESLint (frontend), GitHub Actions (CI), Docker and Docker Compose
 
 ## Getting Started
 
@@ -69,10 +69,10 @@ The app has two parts: a Node.js and Express API that stores items and checks cl
 ```bash
    cd backend
    npm install
-   cp .env.example .env    # optional, only if you want to change the port
+   cp .env.example .env    # set MONGODB_URI here to use MongoDB
    npm run dev
 ```
-   The API runs at `http://localhost:3000`. Open `http://localhost:3000/api/health` to check it works.
+   The API runs at `http://localhost:3000`. Open `http://localhost:3000/api/health` to check it works. Without `MONGODB_URI`, items are kept in memory and are lost when the server stops.
 
 3. Run the application: in a second terminal, install and start the frontend
 ```bash
@@ -87,6 +87,46 @@ To run the checks that CI runs on every pull request:
    cd backend && npm test
    cd ../frontend && npm run lint && npm run build
 ```
+
+## Run with Docker
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+
+### Run the backend and MongoDB with Docker Compose
+
+This is the easiest way. It starts two containers: the API (`app`) and a MongoDB database (`db`).
+
+1. From the root of the repository, copy the example settings and set your own `MONGO_PASSWORD` in `.env`
+```bash
+   cp .env.example .env
+```
+
+2. Build and start the containers
+```bash
+   docker compose up --build
+```
+   The API runs at `http://localhost:3000`. Open `http://localhost:3000/api/health` to check it works. Items are saved in MongoDB, so they are still there after a restart.
+
+3. Stop the containers
+```bash
+   docker compose down        # keeps the saved items
+   docker compose down -v     # also deletes the saved items
+```
+
+The frontend is not in Docker yet. Run it with `npm run dev` as shown in step 3 of Installation.
+
+### Run only the backend container
+
+Without a database, the API keeps items in memory.
+
+```bash
+docker build -t findr-backend:local ./backend
+docker run --rm --name findr-backend -p 3000:3000 findr-backend:local
+```
+
+Press `Ctrl+C` to stop it.
 
 ### Usage
 
@@ -116,12 +156,14 @@ findr/
 │   │   ├── controllers/        # Report, search and claim logic
 │   │   ├── data/               # Seed items
 │   │   ├── routes/             # API routes
-│   │   ├── store/              # Item storage (in-memory for now)
+│   │   ├── store/              # Item storage (MongoDB, or in-memory for tests)
 │   │   ├── utils/              # Helpers, e.g. hiding private fields
 │   │   ├── app.js              # Builds the Express app
 │   │   └── index.js            # Starts the server
 │   ├── tests/                  # Jest + Supertest tests
-│   └── .env.example            # Example environment variables
+│   ├── .dockerignore           # Files left out of the Docker image
+│   ├── .env.example            # Example environment variables
+│   └── Dockerfile              # Builds the backend image
 ├── frontend/                   # Website (React + Vite)
 │   └── src/
 │       ├── components/         # Header, chips, success screen
@@ -129,6 +171,8 @@ findr/
 │       ├── data/               # Sample items and form options
 │       ├── lib/                # API calls and helpers
 │       └── pages/              # Items list, report form
+├── .env.example                # Settings for Docker Compose
+├── docker-compose.yml          # Runs the backend and MongoDB together
 ├── LICENSE
 └── README.md
 ```
@@ -143,51 +187,3 @@ findr/
 
 MIT License. See the [LICENSE](./LICENSE) file.
 
-## Run with Docker
-
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-- Git, to clone the repository.
-
-### Build the backend image
-
-From the root of the Findr repository, run:
-
-```powershell
-docker build -t findr-backend:local ./backend
-```
-
-### Run the backend container
-
-```powershell
-docker run --name findr-backend -p 3000:3000 findr-backend:local
-```
-
-The API will listen on port 3000. You should keep the terminal open while the container is running.
-
-### Verify the API
-
-Open another terminal and run:
-
-```powershell
-Invoke-RestMethod http://localhost:3000/api/health
-```
-
-A successful response is:
-
-```json
-{"status":"ok"}
-```
-
-### Stop and remove the container
-
-Press `Ctrl+C` in the terminal running the container, then run:
-
-```powershell
-docker rm findr-backend
-```
-
-### Notes
-
-This command runs only the backend API. It uses the current in-memory sample data and does not start the frontend or a MongoDB database. To run the full application, use the Docker Compose instructions in the project.
