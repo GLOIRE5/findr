@@ -1,43 +1,88 @@
-﻿name: Node.js CI
+﻿name: CI
 
+# Check every branch while we work on it, and every pull request into main.
+# main itself is only changed through pull requests, so it is already checked.
 on:
   push:
-    branches: [main]
+    branches-ignore: [main]
   pull_request:
     branches: [main]
 
+# A new push to the same branch cancels the run that is still going
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  test:
+  lint-and-test:
+    name: Lint and test (${{ matrix.app }})
     runs-on: ubuntu-latest
+    strategy:
+      # Finish both apps even if one fails, so we see every problem at once
+      fail-fast: false
+      matrix:
+        include:
+          - app: backend
+            check: test
+          - app: frontend
+            check: build
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
     steps:
-      - name: Checkout repository
+      - name: Check out the code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
 
-      - name: Install backend dependencies
-        working-directory: backend
+      - name: Install dependencies
         run: npm ci
 
-      - name: Run backend tests
-        working-directory: backend
-        run: npm test
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-
-      - name: Lint frontend
-        working-directory: frontend
+      - name: Lint
         run: npm run lint
 
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
+      # Backend runs the Jest tests, frontend checks that the website builds
+      - name: Run ${{ matrix.check }}
+        run: npm run ${{ matrix.check }}
+
+  docker:
+    name: Docker build
+    # Only build the image once the code passes lint and tests
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Reuse unchanged layers from earlier runs (GitHub Actions cache)
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: findr:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Start the container without a database (it falls back to memory)
+      # and wait for /api/health to answer
+      - name: Check the container starts
+        run: |
+          docker run -d --name findr -p 3000:3000 findr:ci
+          for i in $(seq 1 15); do
+            curl -fs http://localhost:3000/api/health && exit 0
+            sleep 2
+          done
+          docker logs findr
+          exit 1
