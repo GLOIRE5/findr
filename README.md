@@ -142,3 +142,52 @@ findr/
 ## License
 
 MIT License. See the [LICENSE](./LICENSE) file.
+
+## Run with Docker
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+- Git, to clone the repository.
+
+### Build the backend image
+
+From the root of the Findr repository, run:
+
+```powershell
+docker build -t findr-backend:local ./backend
+```
+
+### Run the backend container
+
+```powershell
+docker run --name findr-backend -p 3000:3000 findr-backend:local
+```
+
+The API will listen on port 3000. You should keep the terminal open while the container is running.
+
+### Verify the API
+
+Open another terminal and run:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/api/health
+```
+
+A successful response is:
+
+```json
+{"status":"ok"}
+```
+
+### Stop and remove the container
+
+Press `Ctrl+C` in the terminal running the container, then run:
+
+```powershell
+docker rm findr-backend
+```
+
+### Notes
+
+This command runs only the backend API. It uses the current in-memory sample data and does not start the frontend or a MongoDB database. To run the full application, use the Docker Compose instructions in the project.
