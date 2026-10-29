@@ -1,35 +1,20 @@
-import { seedItems } from "../data/seedItems.js";
+import { createMemoryStore } from "./memoryStore.js";
+import { createMongoStore } from "./mongoStore.js";
 
-// In-memory storage. Every other file talks to items only through these
-// functions, so we can swap this for a real database later without
-// changing the routes or controllers.
-let items = [];
-let nextId = 1;
+// The one place the rest of the app gets items from. Every function returns
+// a promise, so callers always use await, whichever store is active.
+// Starts with the memory store; initStore() switches to MongoDB when
+// MONGODB_URI is set.
+let store = createMemoryStore();
 
-export function reset(data = seedItems) {
-  items = data.map((item) => ({ returned: false, ...item }));
-  nextId = Math.max(0, ...items.map((item) => item.id)) + 1;
+export async function initStore(uri = process.env.MONGODB_URI) {
+  if (uri) store = await createMongoStore(uri);
+  return store.name;
 }
 
-export function getAll() {
-  return items;
-}
-
-export function getById(id) {
-  return items.find((item) => item.id === Number(id));
-}
-
-export function add(item) {
-  const created = { ...item, id: nextId++, returned: false };
-  items.unshift(created);
-  return created;
-}
-
-export function update(id, changes) {
-  const item = getById(id);
-  if (!item) return undefined;
-  Object.assign(item, changes);
-  return item;
-}
-
-reset();
+export const reset = (...args) => store.reset(...args);
+export const getAll = () => store.getAll();
+export const getById = (id) => store.getById(id);
+export const add = (item) => store.add(item);
+export const update = (id, changes) => store.update(id, changes);
+export const closeStore = () => store.close();

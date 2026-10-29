@@ -50,7 +50,7 @@ describe("POST /api/items/:id/claim", () => {
   });
 
   test("returned items cannot be claimed", async () => {
-    store.update(FOUND_ID, { returned: true });
+    await store.update(FOUND_ID, { returned: true });
     const res = await request(app).post(`/api/items/${FOUND_ID}/claim`).send({ answer: "Laptop charger" });
     expect(res.status).toBe(409);
   });
@@ -69,7 +69,7 @@ describe("PATCH /api/items/:id/returned", () => {
     expect(res.body.returnedAt).toBeDefined();
     expect(res.body.answer).toBeUndefined();
     expect(res.body.contact).toBeUndefined();
-    expect(store.getById(FOUND_ID).returned).toBe(true);
+    expect((await store.getById(FOUND_ID)).returned).toBe(true);
   });
 
   test("cannot be returned twice", async () => {

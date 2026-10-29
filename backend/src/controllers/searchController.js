@@ -20,7 +20,7 @@ function read(value) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
 }
 
-export function listItems(req, res) {
+export async function listItems(req, res) {
   const status = read(req.query.status);
   const category = read(req.query.category);
   const location = read(req.query.location);
@@ -38,7 +38,7 @@ export function listItems(req, res) {
     return res.status(400).json({ error: "Returned must be 'true' or 'false'" });
   }
 
-  const results = store.getAll().filter((item) => {
+  const results = (await store.getAll()).filter((item) => {
     if (status && item.status !== status) return false;
     if (category && String(item.category).toLowerCase() !== category) return false;
     if (location && !String(item.location).toLowerCase().includes(location)) return false;

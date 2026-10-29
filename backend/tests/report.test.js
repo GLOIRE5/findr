@@ -25,7 +25,7 @@ const foundItem = {
 };
 
 beforeEach(() => {
-  store.reset();
+  return store.reset();
 });
 
 describe("POST /api/items", () => {
@@ -52,9 +52,9 @@ describe("POST /api/items", () => {
   });
 
   it("adds the item to the store", async () => {
-    const before = store.getAll().length;
+    const before = (await store.getAll()).length;
     await request(app).post("/api/items").send(lostItem);
-    expect(store.getAll().length).toBe(before + 1);
+    expect((await store.getAll()).length).toBe(before + 1);
   });
 
   it("trims spaces and lowercases category and status", async () => {

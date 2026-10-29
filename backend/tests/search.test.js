@@ -10,7 +10,7 @@ function ids(res) {
 }
 
 beforeEach(() => {
-  store.reset();
+  return store.reset();
 });
 
 describe("GET /api/items", () => {
@@ -67,7 +67,7 @@ describe("GET /api/items", () => {
   });
 
   it("searches words in the description with q", async () => {
-    store.update(4, { description: "Has a blue lanyard" });
+    await store.update(4, { description: "Has a blue lanyard" });
 
     const res = await request(app).get("/api/items?q=lanyard");
     expect(ids(res)).toEqual([4]);
@@ -91,7 +91,7 @@ describe("GET /api/items", () => {
   });
 
   it("filters by returned", async () => {
-    store.update(2, { returned: true });
+    await store.update(2, { returned: true });
 
     const returned = await request(app).get("/api/items?returned=true");
     const open = await request(app).get("/api/items?returned=false");

@@ -56,18 +56,18 @@ function validate(body) {
   return { data };
 }
 
-export function createItem(req, res) {
+export async function createItem(req, res) {
   const { error, data } = validate(req.body ?? {});
   if (error) {
     return res.status(400).json({ error });
   }
 
-  const created = store.add(data);
+  const created = await store.add(data);
   res.status(201).json(publicItem(created));
 }
 
-export function getItem(req, res) {
-  const item = store.getById(req.params.id);
+export async function getItem(req, res) {
+  const item = await store.getById(req.params.id);
   if (!item) {
     return res.status(404).json({ error: "Item not found" });
   }
