@@ -2,7 +2,7 @@
 
 > A simple lost and found app for the ALU campus.
 
-[![Node.js CI](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml/badge.svg)](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml)
+[![CI](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml/badge.svg)](https://github.com/GLOIRE5/findr/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 ## African Context
@@ -47,7 +47,7 @@ The app has two parts: a Node.js and Express API that stores items and checks cl
 - **Backend**: Node.js 22 and Express 5
 - **Frontend**: React 19, Vite, React Router, Tailwind CSS, shadcn/ui
 - **Database**: MongoDB (the tests use an in-memory store)
-- **Other**: Jest and Supertest (backend tests), ESLint (frontend), GitHub Actions (CI), Docker and Docker Compose
+- **Other**: Jest and Supertest (backend tests), ESLint (backend and frontend), GitHub Actions (CI), Docker and Docker Compose
 
 ## Getting Started
 
@@ -82,11 +82,7 @@ The app has two parts: a Node.js and Express API that stores items and checks cl
 ```
    The website runs at `http://localhost:5173`.
 
-To run the checks that CI runs on every pull request:
-```bash
-   cd backend && npm test
-   cd ../frontend && npm run lint && npm run build
-```
+To run the same checks as CI before you push, see [CI pipeline](#ci-pipeline).
 
 ### Usage
 
@@ -160,13 +156,51 @@ docker run --rm -p 3000:3000 findr
 
 Press `Ctrl+C` to stop it.
 
+## CI pipeline
+
+GitHub Actions checks the code automatically, using [`.github/workflows/ci.yml`](./.github/workflows/ci.yml).
+
+### When it runs
+
+- On every push to any branch except `main`
+- On every pull request into `main`
+
+`main` only changes through pull requests, so it is always checked before code reaches it. If you push again while a run is still going, the older run is cancelled.
+
+### What it checks
+
+| Job | Steps |
+|-----|-------|
+| **Lint and test (backend)** | Install, ESLint, Jest tests |
+| **Lint and test (frontend)** | Install, ESLint, build the website |
+| **Docker build** | Build the image, start it and check `/api/health` answers |
+
+The backend and frontend jobs run at the same time. **Docker build** only starts when both pass. If any step fails, the run fails and the pull request can't be merged (see [Branch protection rules](./docs/branch-protection.md)). npm packages and Docker layers are cached, so later runs are faster.
+
+### Run the same checks locally
+
+Run these before you push to catch problems early:
+
+```bash
+cd backend
+npm run lint
+npm test
+
+cd ../frontend
+npm run lint
+npm run build
+
+cd ..
+docker build -t findr .
+```
+
 ## Project Structure
 
 ```
 findr/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml              # CI: backend tests, frontend lint and build
+│       └── ci.yml              # CI: lint, tests, build and Docker image
 ├── backend/                    # API (Node.js + Express)
 │   ├── src/
 │   │   ├── controllers/        # Report, search and claim logic
