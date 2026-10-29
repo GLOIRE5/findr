@@ -1,4 +1,4 @@
-﻿# Findr
+# Findr
 
 > A simple lost and found app for the ALU campus.
 
@@ -88,46 +88,6 @@ To run the checks that CI runs on every pull request:
    cd ../frontend && npm run lint && npm run build
 ```
 
-## Run with Docker
-
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-
-### Run the backend and MongoDB with Docker Compose
-
-This is the easiest way. It starts two containers: the API (`app`) and a MongoDB database (`db`).
-
-1. From the root of the repository, copy the example settings and set your own `MONGO_PASSWORD` in `.env`
-```bash
-   cp .env.example .env
-```
-
-2. Build and start the containers
-```bash
-   docker compose up --build
-```
-   The API runs at `http://localhost:3000`. Open `http://localhost:3000/api/health` to check it works. Items are saved in MongoDB, so they are still there after a restart.
-
-3. Stop the containers
-```bash
-   docker compose down        # keeps the saved items
-   docker compose down -v     # also deletes the saved items
-```
-
-The frontend is not in Docker yet. Run it with `npm run dev` as shown in step 3 of Installation.
-
-### Run only the backend container
-
-Without a database, the API keeps items in memory.
-
-```bash
-docker build -t findr-backend:local ./backend
-docker run --rm --name findr-backend -p 3000:3000 findr-backend:local
-```
-
-Press `Ctrl+C` to stop it.
-
 ### Usage
 
 1. Open `http://localhost:5173` to see the board of lost and found items. Search by name or place, or filter by status and category.
@@ -143,6 +103,62 @@ The frontend uses these API endpoints:
 | `GET` | `/api/items/:id` | Get one item |
 | `POST` | `/api/items/:id/claim` | Claim an item by answering its question |
 | `PATCH` | `/api/items/:id/returned` | Mark an item as returned |
+
+## Run with Docker
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+
+### Run the whole app with Docker Compose
+
+From the root of the repository, run one command:
+
+```bash
+docker compose up --build
+```
+
+This starts two containers:
+
+- **app**: the website and the API, built from the `Dockerfile`
+- **db**: a MongoDB database. Items are saved in the `mongo-data` volume, so they are still there after a restart
+
+Open `http://localhost:3000` to use Findr. Open `http://localhost:3000/api/health` to check the API.
+
+To stop it:
+```bash
+docker compose down        # keeps the saved items
+docker compose down -v     # also deletes the saved items
+```
+
+### Change the settings (optional)
+
+Compose works without any setup. The default database password is only for your own laptop. To change the port or the password, copy the example file and edit it:
+
+```bash
+cp .env.example .env
+```
+
+If you change the password after the first start, run `docker compose down -v` once so MongoDB is created again with the new login.
+
+### How the Docker image is built
+
+The `Dockerfile` has three stages:
+
+1. **frontend**: builds the React website into static files
+2. **backend**: installs the API packages, without test tools
+3. **final image**: copies only the built website, the API code and its packages. It runs as the `node` user, not root, and has a health check on `/api/health`
+
+### Run only the app container
+
+Without a database, the API keeps items in memory.
+
+```bash
+docker build -t findr .
+docker run --rm -p 3000:3000 findr
+```
+
+Press `Ctrl+C` to stop it.
 
 ## Project Structure
 
@@ -161,9 +177,7 @@ findr/
 │   │   ├── app.js              # Builds the Express app
 │   │   └── index.js            # Starts the server
 │   ├── tests/                  # Jest + Supertest tests
-│   ├── .dockerignore           # Files left out of the Docker image
-│   ├── .env.example            # Example environment variables
-│   └── Dockerfile              # Builds the backend image
+│   └── .env.example            # Example environment variables
 ├── frontend/                   # Website (React + Vite)
 │   └── src/
 │       ├── components/         # Header, chips, success screen
@@ -171,8 +185,10 @@ findr/
 │       ├── data/               # Sample items and form options
 │       ├── lib/                # API calls and helpers
 │       └── pages/              # Items list, report form
-├── .env.example                # Settings for Docker Compose
-├── docker-compose.yml          # Runs the backend and MongoDB together
+├── .dockerignore               # Files left out of the Docker image
+├── .env.example                # Optional settings for Docker Compose
+├── docker-compose.yml          # Runs the app and MongoDB together
+├── Dockerfile                  # Builds one image with the website and API
 ├── LICENSE
 └── README.md
 ```
