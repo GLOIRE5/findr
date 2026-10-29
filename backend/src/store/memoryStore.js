@@ -1,0 +1,40 @@
+import { seedItems } from "../data/seedItems.js";
+
+// Keeps items in memory. Used by the tests and when no MONGODB_URI is set.
+// Data is lost when the server stops.
+export function createMemoryStore() {
+  let items = [];
+  let nextId = 1;
+
+  async function reset(data = seedItems) {
+    items = data.map((item) => ({ returned: false, ...item }));
+    nextId = Math.max(0, ...items.map((item) => item.id)) + 1;
+  }
+
+  async function getAll() {
+    return items;
+  }
+
+  async function getById(id) {
+    return items.find((item) => item.id === Number(id));
+  }
+
+  async function add(item) {
+    const created = { ...item, id: nextId++, returned: false };
+    items.unshift(created);
+    return created;
+  }
+
+  async function update(id, changes) {
+    const item = await getById(id);
+    if (!item) return undefined;
+    Object.assign(item, changes);
+    return item;
+  }
+
+  async function close() {}
+
+  reset();
+
+  return { name: "memory", reset, getAll, getById, add, update, close };
+}

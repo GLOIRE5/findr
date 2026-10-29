@@ -13,8 +13,8 @@ function normalize(text) {
   return String(text).trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-export function claimItem(req, res) {
-  const item = store.getById(req.params.id);
+export async function claimItem(req, res) {
+  const item = await store.getById(req.params.id);
   if (!item) {
     return res.status(404).json({ error: "Item not found" });
   }
@@ -36,7 +36,7 @@ export function claimItem(req, res) {
   }
 
   if (normalize(answer) !== normalize(item.answer)) {
-    store.update(item.id, { claimAttempts: attempts + 1 });
+    await store.update(item.id, { claimAttempts: attempts + 1 });
     return res.status(403).json({
       error: "That answer is not correct",
       attemptsLeft: MAX_ATTEMPTS - attempts - 1,
@@ -46,8 +46,8 @@ export function claimItem(req, res) {
   res.json({ message: "Correct! Contact the finder to get your item back.", contact: item.contact });
 }
 
-export function markReturned(req, res) {
-  const item = store.getById(req.params.id);
+export async function markReturned(req, res) {
+  const item = await store.getById(req.params.id);
   if (!item) {
     return res.status(404).json({ error: "Item not found" });
   }
@@ -55,6 +55,6 @@ export function markReturned(req, res) {
     return res.status(409).json({ error: "This item has already been returned" });
   }
 
-  const updated = store.update(item.id, { returned: true, returnedAt: new Date().toISOString() });
+  const updated = await store.update(item.id, { returned: true, returnedAt: new Date().toISOString() });
   res.json(publicItem(updated));
 }
