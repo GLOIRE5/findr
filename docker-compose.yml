@@ -1,23 +1,24 @@
 # Start everything: docker compose up
-# Settings are in .env (copy .env.example)
+# Then open http://localhost:3000
+# To change the settings, copy .env.example to .env
 
 name: findr
 
 services:
   app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    image: findr-backend
+    image: findr-app
     ports:
       - "${APP_PORT:-3000}:3000"
     environment:
       PORT: 3000
       NODE_ENV: production
       # "db" = the database service below
-      MONGODB_URI: mongodb://${MONGO_USER:?Set MONGO_USER in .env}:${MONGO_PASSWORD:?Set MONGO_PASSWORD in .env}@db:27017/${MONGO_DB:-findr}?authSource=admin
-      # the frontend runs with npm run dev
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      MONGODB_URI: mongodb://${MONGO_USER:-findr}:${MONGO_PASSWORD:-findr-local}@db:27017/${MONGO_DB:-findr}?authSource=admin
+      # the website is served by the app; 5173 is for npm run dev
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:5173}
     depends_on:
       db:
         condition: service_healthy
@@ -34,8 +35,9 @@ services:
   db:
     image: mongo:7.0
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:?Set MONGO_USER in .env}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?Set MONGO_PASSWORD in .env}
+      # default login is for local use only, set your own in .env
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-findr}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-findr-local}
     volumes:
       - mongo-data:/data/db
     healthcheck:
