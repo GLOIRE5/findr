@@ -1,7 +1,5 @@
 ﻿name: CI
 
-# Check every branch while we work on it, and every pull request into main.
-# main itself is only changed through pull requests, so it is already checked.
 on:
   push:
     branches-ignore: [main]
@@ -49,15 +47,38 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # Backend runs the Jest tests, frontend checks that the website builds
+      # Backend runs the Jest tests and also writes the results to a file.
+      # Frontend checks that the website builds.
       - name: Run ${{ matrix.check }}
-        run: npm run ${{ matrix.check }}
+        run: npm run ${{ matrix.check }}${{ matrix.app == 'backend' && ' -- --json --outputFile=test-results.json' || '' }}
+
+      # Keep the test results, even when the tests fail, so we can read them
+      - name: Upload backend test results
+        if: always() && matrix.app == 'backend'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/test-results.json
+          if-no-files-found: ignore
+
+      # Keep the built website so every version can be downloaded and checked
+      - name: Upload frontend build
+        if: matrix.app == 'frontend'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist
+          if-no-files-found: error
 
   docker:
     name: Docker build
     # Only build the image once the code passes lint and tests
     needs: lint-and-test
     runs-on: ubuntu-latest
+    # packages: write lets this job publish to GitHub Container Registry
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Check out the code
         uses: actions/checkout@v4
@@ -86,3 +107,28 @@ jobs:
           done
           docker logs findr
           exit 1
+
+      # Image names must be lowercase
+      - name: Work out the image name
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      # Log in with the token GitHub gives every run. No passwords in the code.
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Only pull requests into main publish an image, tagged with the commit SHA.
+      # It runs after the container check, so only an image that starts gets pushed.
+      - name: Push the image
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}:${{ github.event.pull_request.head.sha }}
+          cache-from: type=gha
